@@ -39,33 +39,33 @@ class App extends React.Component {
 
                   let plasmid_edits = []
                   if (has_perm_to_edit){
-                      plasmid_edits.push(<a href={"/inventory/plasmid_validation/edit/" + plasmid.i} class="btn btn-outline-primary"
+                      plasmid_edits.push(<a href={"/inventory/plasmid_validation/edit/" + plasmid.i} class="btn btn-outline-primary me-1"
                                             role="button" target="_blank"><i class="bi bi-check2-square"></i></a>)
-                      plasmid_edits.push(<a href={"/inventory/plasmid/edit/" + plasmid.i} class="btn btn-outline-secondary"
+                      plasmid_edits.push(<a href={"/inventory/plasmid/edit/" + plasmid.i} class="btn btn-outline-secondary me-1"
                                             role="button" target="_blank"><i class="bi bi-pencil-fill"></i></a>)
                   }
                   let plasmid_sequence_options = []
 
                   if (plasmid.hs) {
                       plasmid_sequence_options.push(<div class="download-links">
-                          <a href={"/inventory/plasmid/download/" + plasmid.i} class="btn btn-outline-primary"
+                          <a href={"/inventory/plasmid/download/" + plasmid.i} class="btn btn-outline-primary me-1"
                              role="button"
                              download={plasmid.n}><i class="bi bi-download"></i> ORIG</a>
-                          <a href={"/inventory/plasmid/download/" + plasmid.i + "?format=gb"} class="btn btn-outline-primary"
+                          <a href={"/inventory/plasmid/download/" + plasmid.i + "?format=gb"} class="btn btn-outline-primary me-1"
                              role="button"
                              download={plasmid.n}><i class="bi bi-download"></i> .GB</a>
                           <a href={"/inventory/plasmid/download/" + plasmid.i + "?format=fasta"}
-                             class="btn btn-outline-primary" role="button"
+                             class="btn btn-outline-primary me-1" role="button"
                              download={plasmid.n}><i class="bi bi-download"></i> .FASTA</a>
                       </div>)
-                      plasmid_sequence_options.push(<button type="button" class="btn btn-outline-primary download-options"><i class="bi bi-download"></i></button>)
-                      plasmid_sequence_options.push(<a href={"/inventory/plasmid/digest/" + plasmid.i} class="btn btn-outline-secondary"
+                      plasmid_sequence_options.push(<button type="button" class="btn btn-outline-primary download-options me-1"><i class="bi bi-download"></i></button>)
+                      plasmid_sequence_options.push(<a href={"/inventory/plasmid/digest/" + plasmid.i} class="btn btn-outline-secondary me-1"
                                                        role="button" target="_blank"><i class="bi bi-scissors"></i></a>)
-                      plasmid_sequence_options.push(<a href={"/inventory/plasmid/view_edit/" + plasmid.i} class="btn btn-outline-info"
+                      plasmid_sequence_options.push(<a href={"/inventory/plasmid/view_edit/" + plasmid.i} class="btn btn-outline-info me-1"
                                                        role="button" target="_blank"><i class="bi bi-eye"></i> / <i class="bi bi-pencil"></i></a>)
-                      plasmid_sequence_options.push(<a href={"/inventory/plasmid/sanger/" + plasmid.i} class="btn btn-outline-warning"
+                      plasmid_sequence_options.push(<a href={"/inventory/plasmid/sanger/" + plasmid.i} class="btn btn-outline-warning me-1"
                                                        role="button" target="_blank"><i class="bi bi-list-nested"></i></a>)
-                      plasmid_sequence_options.push(<a href={"/inventory/plasmid/pcr/" + plasmid.i} class="btn btn-outline-success"
+                      plasmid_sequence_options.push(<a href={"/inventory/plasmid/pcr/" + plasmid.i} class="btn btn-outline-success me-1"
                                                        role="button" target="_blank"><i class="bi bi-arrow-return-right"></i></a>)
 
                       if(plasmid.c != null && plasmid.c >0) {
@@ -120,9 +120,9 @@ class App extends React.Component {
                   }
                   output.push(<tr class={"filter-item" + plasmid_level + plasmid_type + table_filters_output}>
                       <td>
-                          <a href={"/inventory/plasmid/" + plasmid.i} class="btn btn-success table-search-search_on"
+                          <a href={"/inventory/plasmid/" + plasmid.i} class="btn btn-success table-search-search_on me-1"
                              role="button" target="_blank">{plasmid.n} {plasmid_ok} <i class="bi bi-clipboard copy_clipboard" data-cc={plasmid.n}></i></a>
-                          <a href={"/inventory/plasmid/label/" + plasmid.i} class="btn btn-outline-info"
+                          <a href={"/inventory/plasmid/label/" + plasmid.i} class="btn btn-outline-info me-1"
                              role="button" target="_blank"><i class="bi bi-tag-fill"></i></a>
                           {plasmid_edits}
                       </td>
