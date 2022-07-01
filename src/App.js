@@ -14,8 +14,8 @@ class App extends React.Component {
 
     loadData() {
         const axios = require('axios');
-        const url = 'http://192.168.1.64:8000/inventory/api/plasmids'
-        // const url = '/inventory/api/plasmids'
+        // const url = 'http://192.168.1.64:8000/inventory/api/plasmids'
+        const url = '/inventory/api/plasmids'
         axios.get(url)
             .then((response) => {
                 let output = []
