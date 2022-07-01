@@ -168,11 +168,17 @@ class App extends React.Component {
                             }
                             plasmid_type_level.push(<span className="text-secondary"> - {type_name}</span>)
                         }
+                        let plasmid_name = plasmid.n
+                        if(plasmid_name.length > 17)
+                            plasmid_name = <OverlayTrigger placement="right"
+                                                           overlay={<Tooltip>{plasmid.n}</Tooltip>}>
+                                <span>{plasmid.n.substring(0, 18)} ...</span>
+                            </OverlayTrigger>
                         output.push(<tr class={"filter-item" + plasmid_level + plasmid_type + table_filters_output}>
                             <td>
                                 <a href={"/inventory/plasmid/" + plasmid.i}
                                    class="btn btn-success table-search-search_on me-1"
-                                   role="button" target="_blank" rel="noreferrer">{plasmid.n} {plasmid_ok}</a>
+                                   role="button" target="_blank" rel="noreferrer">{plasmid_name} {plasmid_ok}</a>
                                 <OverlayTrigger placement="right"
                                                 overlay={<Tooltip>Copy name</Tooltip>}>
                                     <button class="btn btn-outline-secondary me-1"><i class="bi bi-clipboard copy_clipboard" data-cc={plasmid.n}></i></button>
@@ -231,8 +237,7 @@ class App extends React.Component {
         let render = <div className="alert alert-info">
             <div className="spinner-grow spinner-grow-sm" role="status">
                 <span className="visually-hidden">...</span>
-            </div>
-            Loading plasmids
+            </div> Loading plasmids
         </div>
         if (!this.state.loading) {
             render = this.state.plasmids_render
