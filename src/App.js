@@ -1,7 +1,5 @@
 import './App.css';
 import React from 'react'
-import Tooltip from 'react-bootstrap/Tooltip'
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger'
 
 class App extends React.Component {
     constructor(props) {
@@ -21,7 +19,6 @@ class App extends React.Component {
                 let output = []
                 if (response.data.plasmids) {
                     response.data.plasmids.forEach((plasmid) => {
-                        const has_perm_to_edit = response.data.has_perm_to_edit
                         const csrf_token = response.data.csrf_token
                         const table_filters = response.data.table_filters
                         let plasmid_level = ""
@@ -29,77 +26,95 @@ class App extends React.Component {
                         let plasmid_type = ""
                         if (plasmid.t !== null) plasmid_type = " filter-t" + plasmid.t
 
-                        let plasmid_computed_size = <div>
-                            <form method="post" class="default-style inline"
+                        let plasmid_computed_size = 'No edit perms'
+                        if (plasmid.p) {
+                            let reOpts = []
+                            response.data.RESTRICTION_ENZYMES.forEach((re) => {
+                                let btnClass = "btn-outline-primary"
+                                if(plasmid.r == re.name){
+                                    btnClass = "btn-primary"
+                                }
+                                reOpts.push(
+                                    <button
+                                        className={"btn " + btnClass + " btn-sm me-1"}
+                                        role="button" name="enzyme" value={re.name}>
+                                        {re.name}
+                                    </button>
+                                )
+                            })
+                            plasmid_computed_size = <div>
+                            <form method="post" className="default-style inline"
                                   action={"/inventory/plasmid/view_edit/" + plasmid.i}>
                                 <input type="hidden" name="csrfmiddlewaretoken" value={csrf_token}/>
-                                <button class="btn btn-outline-success me-1" name="create"><i
-                                    class="bi bi-file-earmark-plus"></i></button>
+                                <button className="btn btn-outline-success me-1" name="create" data-bs-toggle="tooltip" data-bs-placement="top" title="Create blank"><i
+                                    className="bi bi-file-earmark-plus"></i></button>
                             </form>
-                            <button class="btn btn-outline-primary enzyme-options me-1"
-                                    data-link={"/inventory/plasmid/" + plasmid.i} data-refc={plasmid.r}><i
-                                class="bi bi-hammer"></i></button>
-                        </div>
+                            <div class="dropdown dropdown-enzymes" data-bs-toggle="tooltip" data-bs-placement="top" title="Build">
+                                <button type="button" class="btn btn-outline-primary dropdown-toggle" id="dropdownEnzymes" data-bs-toggle="dropdown" aria-expanded="false"><i
+                                        class="bi bi-hammer"></i></button>
+                                <div className="dropdown-menu p-2 fw-light " aria-labelledby="dropdownEnzymes">
+                                    <div className="dropdown-menu-header">Chooose enzyme</div>
+                                    <hr className="m-1"/>
+                                    <form method="post" className="default-style">
+                                        <input type="hidden" name="csrfmiddlewaretoken" value={csrf_token}/>
+                                        <input type="hidden" name="create_from_parts"/>
+                                        <div className="dropdown-menu-body pt-1">
+                                            {reOpts}
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div> }
 
                         let plasmid_insert_computed_size = ""
 
                         let plasmid_edits = []
-                        if (has_perm_to_edit) {
-                            plasmid_edits.push(<OverlayTrigger placement="right"
-                                                               overlay={<Tooltip>Edit validation</Tooltip>}>
-                                <a href={"/inventory/plasmid_validation/edit/" + plasmid.i}
-                                   class="btn btn-outline-primary me-1"
-                                   role="button" target="_blank" rel="noreferrer"><i
-                                    class="bi bi-check2-square"></i></a>
-                            </OverlayTrigger>)
-                            plasmid_edits.push(<OverlayTrigger placement="right"
-                                                               overlay={<Tooltip>Edit plasmid data</Tooltip>}>
-                                <a href={"/inventory/plasmid/edit/" + plasmid.i} class="btn btn-outline-secondary me-1"
-                                   role="button" target="_blank" rel="noreferrer"><i class="bi bi-pencil-fill"></i></a>
-                            </OverlayTrigger>)
+                        if (plasmid.p) {
+                            plasmid_edits.push(<a href={"/inventory/plasmid/validation/edit/" + plasmid.i}
+                                   className="btn btn-outline-primary me-1"
+                                   role="button" target="_blank" rel="noreferrer" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit validation"><i
+                                    className="bi bi-check2-square"></i></a>)
+                            plasmid_edits.push(<a href={"/inventory/plasmid/edit/" + plasmid.i} className="btn btn-outline-secondary me-1"
+                                   role="button" target="_blank" rel="noreferrer" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit"><i className="bi bi-pencil-fill"></i></a>)
                         }
                         let plasmid_sequence_options = []
 
                         if (plasmid.hs) {
-                            plasmid_sequence_options.push(<div class="download-links">
-                                <a href={"/inventory/plasmid/download/" + plasmid.i}
-                                   class="btn btn-outline-primary me-1"
-                                   role="button"
-                                   download={plasmid.n}><i class="bi bi-download"></i> ORIG</a>
-                                <a href={"/inventory/plasmid/download/" + plasmid.i + "?format=gb"}
-                                   class="btn btn-outline-primary me-1"
-                                   role="button"
-                                   download={plasmid.n}><i class="bi bi-download"></i> .GB</a>
-                                <a href={"/inventory/plasmid/download/" + plasmid.i + "?format=fasta"}
-                                   class="btn btn-outline-primary me-1" role="button"
-                                   download={plasmid.n}><i class="bi bi-download"></i> .FASTA</a>
-                            </div>)
-                            plasmid_sequence_options.push(<OverlayTrigger placement="right"
-                                                                          overlay={<Tooltip>Download</Tooltip>}>
-                                <button type="button"
-                                        className="btn btn-outline-primary download-options me-1 button_label_autohide">
-                                    <i
-                                        className="bi bi-download"></i></button>
-                            </OverlayTrigger>)
-                            plasmid_sequence_options.push(<OverlayTrigger placement="right"
-                                                                          overlay={<Tooltip>Digest</Tooltip>}>
-                                <a href={"/inventory/plasmid/digest/" + plasmid.i}
-                                   class="btn btn-outline-secondary me-1"
-                                   role="button" target="_blank" rel="noreferrer"><i class="bi bi-scissors"></i></a>
-                            </OverlayTrigger>)
-                            plasmid_sequence_options.push(<OverlayTrigger placement="right"
-                                                                          overlay={<Tooltip>View / edit
-                                                                              sequence</Tooltip>}>
-                                <a href={"/inventory/plasmid/view_edit/" + plasmid.i} class="btn btn-outline-info me-1"
-                                   role="button" target="_blank" rel="noreferrer"><i class="bi bi-eye"></i> / <i
-                                    class="bi bi-pencil"></i></a>
-                            </OverlayTrigger>)
-                            plasmid_sequence_options.push(<OverlayTrigger placement="right"
-                                                                          overlay={<Tooltip>Design PCR</Tooltip>}>
-                                <a href={"/inventory/plasmid/pcr/" + plasmid.i} class="btn btn-outline-success me-1"
-                                   role="button" target="_blank" rel="noreferrer"><i
-                                    class="bi bi-arrow-return-right"></i></a>
-                            </OverlayTrigger>)
+                            plasmid_sequence_options.push(
+                                <div className="dropdown dropdown-download" data-bs-toggle="tooltip"
+                                     data-bs-placement="top" title="Download">
+                                    <button type="button" className="btn btn-outline-primary dropdown-toggle me-1"
+                                            id="dropdownDownload" data-bs-toggle="dropdown" aria-expanded="false"><i
+                                        className="bi bi-download"></i>
+                                    </button>
+                                    <div className="dropdown-menu p-2 fw-light " aria-labelledby="dropdownDownload">
+                                        <div className="dropdown-menu-header">Chooose format</div>
+                                        <hr className="m-1"/>
+                                        <div className="dropdown-menu-body pt-1">
+                                            <a href={"/inventory/plasmid/download/" + plasmid.i}
+                                               className="btn btn-outline-primary btn-sm me-1"
+                                               role="button"
+                                               download={plasmid.n}>ORIG</a>
+                                            <a href={"/inventory/plasmid/download/" + plasmid.i + "?format=gb"}
+                                               className="btn btn-outline-primary btn-sm me-1"
+                                               role="button"
+                                               download={plasmid.n}>GB</a>
+                                            <a href={"/inventory/plasmid/download/" + plasmid.i + "?format=fasta"}
+                                               className="btn btn-outline-primary btn-sm" role="button"
+                                               download={plasmid.n}>FASTA</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            )
+                            plasmid_sequence_options.push(<a href={"/inventory/plasmid/digest/" + plasmid.i}
+                                   className="btn btn-outline-secondary me-1" data-bs-toggle="tooltip" data-bs-placement="top" title="Digest"
+                                   role="button" target="_blank" rel="noreferrer"><i className="bi bi-scissors"></i></a>)
+                            plasmid_sequence_options.push(<a href={"/inventory/plasmid/view_edit/" + plasmid.i} className="btn btn-outline-info me-1"
+                                   role="button" target="_blank" rel="noreferrer" data-bs-toggle="tooltip" data-bs-placement="top" title="View / edit sequence"><i className="bi bi-eye"></i> / <i
+                                    className="bi bi-pencil"></i></a>)
+                            plasmid_sequence_options.push(<a href={"/inventory/plasmid/pcr/" + plasmid.i} className="btn btn-outline-success me-1"
+                                   role="button" target="_blank" rel="noreferrer" data-bs-toggle="tooltip" data-bs-placement="top" title="Design PCR"><i
+                                    className="bi bi-arrow-return-right"></i></a>)
 
                             if (plasmid.c !== null && plasmid.c > 0) {
                                 if (plasmid.c < 1000) {
@@ -116,7 +131,7 @@ class App extends React.Component {
                                 } else {
                                     plasmid_insert_computed_size = Math.floor(plasmid.ic / 1000 * 10) / 10 + " k"
                                 }
-                                plasmid_size_output.push(<span class="text-secondary"> - {plasmid_insert_computed_size}</span>)
+                                plasmid_size_output.push(<span className="text-secondary"> - {plasmid_insert_computed_size}</span>)
                             }
                             if (plasmid.c !== null) plasmid_computed_size = <span>{plasmid_size_output}</span>
                         }
@@ -125,7 +140,7 @@ class App extends React.Component {
                             for (let gid in plasmid.g) {
                                 const gs = plasmid.g[gid]
                                 plasmid_glycerol_stocks.push(
-                                    <div><a href={"/inventory/glycerolstock/" + gs.i} class="btn btn-outline-secondary"
+                                    <div><a href={"/inventory/glycerolstock/" + gs.i} className="btn btn-outline-secondary"
                                             role="button" target="_blank" rel="noreferrer">
                                         <strong>{gs.s}</strong> <span
                                         className="text-muted small ps-2">{gs.br + gs.bc + " / " + gs.b}</span>
@@ -135,7 +150,7 @@ class App extends React.Component {
                         } else {
                             plasmid_glycerol_stocks.push("No glycerolstocks. ")
                             plasmid_glycerol_stocks.push(<a href={"/inventory/glycerolstock/create/" + plasmid.i}
-                                                            class="btn btn-outline-secondary" role="button"
+                                                            className="btn btn-outline-secondary" role="button"
                                                             target="_blank" rel="noreferrer">+ Create</a>)
                         }
                         let table_filters_output = ""
@@ -148,14 +163,16 @@ class App extends React.Component {
                                 })
                             }
                         })
-                        let plasmid_ok = ""
-                        // check_state = 'Not required' or 'Correct'
-                        // sequencing_state = 'Not required' or 'Correct'
-                        if ((plasmid.cs === 0 || plasmid.cs === 2) && (plasmid.ss === 0 || plasmid.ss === 2)) {
-                            plasmid_ok = <OverlayTrigger placement="right"
-                                                         overlay={<Tooltip>Validated plasmid</Tooltip>}>
-                                <i class="bi bi-check-circle-fill"></i>
-                            </OverlayTrigger>
+                        let plasmid_icon = ""
+                        if (plasmid.cs === 'v') {
+                            // verified
+                            plasmid_icon = <i className="bi bi-check-circle-fill ms-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Validated"></i>
+                        } else if(plasmid.cs === 'r') {
+                            // reference
+                            plasmid_icon = <i className="bi bi-bookmarks ms-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Reference"></i>
+                        } else if(plasmid.cs === 'c') {
+                            // under construction
+                            plasmid_icon = <i className="bi bi-hammer ms-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Under construction"></i>
                         }
                         let plasmid_type_level = []
                         if (plasmid.l !== undefined) {
@@ -168,30 +185,22 @@ class App extends React.Component {
                             }
                             plasmid_type_level.push(<span className="text-secondary"> - {type_name}</span>)
                         }
-                        let plasmid_name = plasmid.n
-                        if(plasmid_name.length > 17)
-                            plasmid_name = <OverlayTrigger placement="right"
-                                                           overlay={<Tooltip>{plasmid.n}</Tooltip>}>
-                                <span>{plasmid.n.substring(0, 18)} ...</span>
-                            </OverlayTrigger>
-                        output.push(<tr class={"filter-item" + plasmid_level + plasmid_type + table_filters_output}>
+                        let plasmid_name = <span>{plasmid.n}</span>
+                        if(plasmid.n.length > 17)
+                            plasmid_name = <span data-bs-toggle="tooltip" data-bs-placement="top" title={plasmid.n}>{plasmid.n.substring(0, 18)} ...</span>
+                        output.push(<tr className={"filter-item" + plasmid_level + plasmid_type + table_filters_output}>
                             <td>
                                 <a href={"/inventory/plasmid/" + plasmid.i}
-                                   class="btn btn-success table-search-search_on me-1"
-                                   role="button" target="_blank" rel="noreferrer">{plasmid_name} {plasmid_ok}</a>
-                                <OverlayTrigger placement="right"
-                                                overlay={<Tooltip>Copy name</Tooltip>}>
-                                    <button class="btn btn-outline-secondary me-1"><i class="bi bi-clipboard copy_clipboard" data-cc={plasmid.n}></i></button>
-                                </OverlayTrigger>
-                                <OverlayTrigger placement="right"
-                                                overlay={<Tooltip>Print label</Tooltip>}>
-                                    <a href={"/inventory/plasmid/label/" + plasmid.i} class="btn btn-outline-info me-1"
-                                       role="button" target="_blank" rel="noreferrer"><i class="bi bi-tag-fill"></i></a>
-                                </OverlayTrigger>
+                                   className="btn btn-success table-search-search_on me-1"
+                                   data-search={plasmid.n}
+                                   role="button" target="_blank" rel="noreferrer">{plasmid_name}{plasmid_icon}</a>
+                                <button className="btn btn-outline-secondary me-1 copy_clipboard-child" data-bs-toggle="tooltip" data-bs-placement="top" title="Copy name"><i className="bi bi-clipboard copy_clipboard" data-cc={plasmid.n}></i></button>
+                                <a href={"/inventory/plasmid/label/" + plasmid.i} className="btn btn-outline-info me-1"
+                                       role="button" target="_blank" rel="noreferrer" data-bs-toggle="tooltip" data-bs-placement="top" title="Print label"><i className="bi bi-tag-fill"></i></a>
                                 {plasmid_edits}
                             </td>
-                            <td>{plasmid_type_level} <span class="text-secondary"></span></td>
-                            <td>{plasmid.rh}</td>
+                            <td>{plasmid_type_level} <span className="text-secondary"></span></td>
+                            <td>{plasmid.sm}</td>
                             <td>
                                 {plasmid_computed_size}
                             </td>
@@ -209,7 +218,7 @@ class App extends React.Component {
                         <tr>
                             <th scope="col">Plasmid</th>
                             <th scope="col">Level - Type</th>
-                            <th scope="col">Resistance</th>
+                            <th scope="col">Markers</th>
                             <th scope="col" data-defaultsort='disabled'>Total - Insert length</th>
                             <th scope="col" data-defaultsort='disabled'>Sequence</th>
                             <th scope="col">Glycerol Stock</th>
@@ -227,6 +236,11 @@ class App extends React.Component {
                     loading: false
                 })
             })
+    }
+
+    componentDidUpdate() {
+        window.onReady()
+        window.do_filter_default()
     }
 
     componentDidMount() {
