@@ -1,2 +1,3 @@
 # Plasmids table
-React dev to render plasmids table for the intranet
+
+[Weaver](https://github.com/Meristembio/Weaver) React module for render plasmids table.
