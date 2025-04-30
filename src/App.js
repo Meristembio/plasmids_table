@@ -33,7 +33,7 @@ class App extends React.Component {
                             let reOpts = []
                             response.data.RESTRICTION_ENZYMES.forEach((re) => {
                                 let btnClass = "btn-outline-primary"
-                                if(plasmid.r === re.name){
+                                if(plasmid.r.toLowerCase() === re.name.toLowerCase()){
                                     btnClass = "btn-primary"
                                 }
                                 reOpts.push(
@@ -45,19 +45,19 @@ class App extends React.Component {
                                 )
                             })
                             plasmid_create_build = <div>
-                            <form method="post" className="default-style inline"
+                            <form method="post" className="default-style inline" target="_blank"
                                   action={"/inventory/plasmid/view_edit/" + plasmid.i}>
                                 <input type="hidden" name="csrfmiddlewaretoken" value={csrf_token}/>
                                 <button className="btn text-success me-1" name="create" data-bs-toggle="tooltip" data-bs-placement="top" title="Create blank"><i
                                     className="bi bi-file-earmark-plus"></i></button>
                             </form>
                             <div class="dropdown dropdown-enzymes" data-bs-toggle="tooltip" data-bs-placement="top" title="Build">
-                                <button type="button" class="btn text-primary dropdown-toggle" id="dropdownEnzymes" data-bs-toggle="dropdown" aria-expanded="false"><i
+                                <button type="button" class="btn text-primary dropdown-toggle" id={plasmid.ix+"-dropdownEnzymes"} data-bs-toggle="dropdown" aria-expanded="false"><i
                                         class="bi bi-hammer"></i></button>
-                                <div className="dropdown-menu p-2 fw-light " aria-labelledby="dropdownEnzymes">
+                                <div className="dropdown-menu p-2 fw-light " aria-labelledby={plasmid.ix+"-dropdownEnzymes"}>
                                     <div className="dropdown-menu-header">Chooose enzyme</div>
                                     <hr className="m-1"/>
-                                    <form method="post" className="default-style">
+                                    <form method="post" className="default-style" target="_blank">
                                         <input type="hidden" name="csrfmiddlewaretoken" value={csrf_token}/>
                                         <input type="hidden" name="create_from_parts"/>
                                         <div className="dropdown-menu-body pt-1">
@@ -84,10 +84,10 @@ class App extends React.Component {
                                 <div className="dropdown dropdown-download" data-bs-toggle="tooltip"
                                      data-bs-placement="top" title="Download">
                                     <button type="button" className="btn text-primary dropdown-toggle me-1"
-                                            id="dropdownDownload" data-bs-toggle="dropdown" aria-expanded="false"><i
+                                            id={plasmid.ix+"-dropdownDownload"} data-bs-toggle="dropdown" aria-expanded="false"><i
                                         className="bi bi-download"></i>
                                     </button>
-                                    <div className="dropdown-menu p-2 fw-light " aria-labelledby="dropdownDownload">
+                                    <div className="dropdown-menu p-2 fw-light " aria-labelledby={plasmid.ix+"-dropdownDownload"}>
                                         <div className="dropdown-menu-header">Chooose format</div>
                                         <hr className="m-1"/>
                                         <div className="dropdown-menu-body pt-1">
@@ -115,6 +115,18 @@ class App extends React.Component {
                             plasmid_sequence_options.push(<a href={"/inventory/plasmid/pcr/" + plasmid.i} className="btn text-success me-1"
                                    role="button" target="_blank" rel="noreferrer" data-bs-toggle="tooltip" data-bs-placement="top" title="Design PCR"><i
                                     className="bi bi-arrow-return-right"></i></a>)
+                            plasmid_sequence_options.push(<div class="dropdown dropdown-align" data-bs-toggle="tooltip" data-bs-placement="top" title="Align">
+                                    <button type="button" class="btn text-warning dropdown-toggle" id={plasmid.ix+"-dropdownAlign"} data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-list-nested"></i>
+                                    </button>
+                                    <div class="dropdown-menu p-2 fw-light " aria-labelledby={plasmid.ix+"-dropdownAlign"}>
+                                        <div class="dropdown-menu-header">Chooose type</div>
+                                        <hr class="m-1"/>
+                                        <div class="dropdown-menu-body pt-1">
+                                            <a href={"/inventory/plasmid/align/fasta/" + plasmid.i} class="btn btn-outline-primary btn-sm me-1" role="button" target="_blank">Fasta</a>
+                                            <a href={"/inventory/plasmid/align/sanger/" + plasmid.i} class="btn btn-outline-primary btn-sm me-1" role="button" target="_blank">Sanger</a>
+                                        </div>
+                                    </div>
+                                </div>)
 
                             if (plasmid.c !== null && plasmid.c > 0) {
                                 if (plasmid.c < 1000) {
@@ -139,24 +151,6 @@ class App extends React.Component {
                         else {
                             plasmid_computed_size = <span>No sequence<br/>{plasmid_create_build}</span>
                         }
-                        let plasmid_glycerol_stocks = []
-                        if (plasmid.g.length) {
-                            for (let gid in plasmid.g) {
-                                const gs = plasmid.g[gid]
-                                plasmid_glycerol_stocks.push(
-                                    <div><a href={"/inventory/glycerolstock/" + gs.i} className="btn btn-outline-secondary"
-                                            role="button" target="_blank" rel="noreferrer">
-                                        <strong>{gs.s}</strong> <span
-                                        className="text-muted small ps-2">{gs.br + gs.bc + " / " + gs.b}</span>
-                                    </a></div>
-                                )
-                            }
-                        } else {
-                            plasmid_glycerol_stocks.push("No glycerolstocks. ")
-                            plasmid_glycerol_stocks.push(<a href={"/inventory/glycerolstock/create/" + plasmid.i}
-                                                            className="btn btn-outline-secondary" role="button"
-                                                            target="_blank" rel="noreferrer">+ Create</a>)
-                        }
                         let table_filters_output = ""
                         table_filters.forEach((table_filter) => {
                             if (table_filter[0] === 'startswith') {
@@ -170,7 +164,7 @@ class App extends React.Component {
                         let plasmid_icon = ""
                         if (plasmid.cs === 'v') {
                             // verified
-                            plasmid_icon = <i className="bi bi-check-circle-fill ms-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Validated"></i>
+                            plasmid_icon = <i className="bi bi-check-circle ms-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Validated"></i>
                         } else if(plasmid.cs === 'r') {
                             // reference
                             plasmid_icon = <i className="bi bi-bookmarks ms-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Reference"></i>
@@ -203,12 +197,28 @@ class App extends React.Component {
                                 <a href={"/inventory/plasmid/" + plasmid.i}
                                    className="btn btn-success table-search-search_on me-1"
                                    data-name={plasmid.n}
-                                   data-search={plasmid.n+plasmid.ix}
-                                   role="button" target="_blank" rel="noreferrer">{plasmid_name}{plasmid_icon}</a>
-                                   {plasmid_edit}
+                                   data-search-all={plasmid.n+plasmid.ix+plasmid.d+plasmid.iu}
+                                   data-search-idx={plasmid.ix}
+                                   data-search-name={plasmid.n}
+                                   role="button" target="_blank" rel="noreferrer">{plasmid_name}</a>
+                                   {plasmid_icon}
                            </td>
                            <td>
-                                <button className="btn text-secondary me-1 copy_clipboard-child" data-bs-toggle="tooltip" data-bs-placement="top" title="Copy name"><i className="bi bi-clipboard copy_clipboard" data-cc={plasmid.cn}></i></button>
+                                {plasmid_edit}
+                                <button className="btn text-secondary me-1 copy_clipboard-child" data-bs-toggle="tooltip" data-bs-placement="top" title="Copy name + id"><i className="bi bi-clipboard copy_clipboard" data-cc={plasmid.cn}></i></button>
+                                <div class="dropdown dropdown-align" data-bs-toggle="tooltip" data-bs-placement="top" title="Copy options">
+                                    <button type="button" class="btn text-secondary dropdown-toggle" id={plasmid.ix+"-dropdownCopy"} data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-clipboard2-minus"></i>
+                                    </button>
+                                    <div class="dropdown-menu p-2 fw-light " aria-labelledby={plasmid.ix+"-dropdownCopy"}>
+                                        <div class="dropdown-menu-header">Options</div>
+                                        <hr class="m-1"/>
+                                        <div class="dropdown-menu-body pt-1">
+                                            <button className="dropdown-item btn text-secondary me-1 copy_clipboard-child" data-bs-toggle="tooltip" data-bs-placement="top" title="Copy name"><i className="bi bi-clipboard copy_clipboard" data-cc={plasmid.n}></i> Name</button>
+                                            <button className="dropdown-item btn text-secondary me-1 copy_clipboard-child" data-bs-toggle="tooltip" data-bs-placement="top" title="Copy name"><i className="bi bi-clipboard copy_clipboard" data-cc={plasmid.cn}></i> Name + ID</button>
+                                            <button className="dropdown-item btn text-secondary me-1 copy_clipboard-child" data-bs-toggle="tooltip" data-bs-placement="top" title="Copy name"><i className="bi bi-clipboard copy_clipboard" data-cc={plasmid.cn + " - Colony: " + plasmid.wc}></i> Name + ID + Colony</button>
+                                        </div>
+                                    </div>
+                                </div>
                                 <a href={"/inventory/plasmid/label/" + plasmid.i} className="btn text-info me-1"
                                        role="button" target="_blank" rel="noreferrer" data-bs-toggle="tooltip" data-bs-placement="top" title="Print label"><i className="bi bi-tag-fill"></i></a>
                                 {plasmid_edits}
@@ -259,8 +269,12 @@ class App extends React.Component {
                                                     <td>{plasmid.lc}</td>
                                                 </tr>
                                                 <tr>
-                                                    <td>Stocks</td>
-                                                    <td>{plasmid_glycerol_stocks}</td>
+                                                    <td>Intended use</td>
+                                                    <td>{plasmid.iu}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Description</td>
+                                                    <td>{plasmid.d}</td>
                                                 </tr>
                                             </tbody>
                                         </table>
